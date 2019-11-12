@@ -1,4 +1,5 @@
 import os
+import platform
 from flask import Flask
 
 app = Flask(__name__)
@@ -10,9 +11,11 @@ def helloWorld():
 
 
 if __name__ == "__main__":
-    # Windows HOST
-    # app.run(port=5000, debug=True, host='127.0.0.1')
-
-    # # Linux HOST
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, threaded=True)
+    if platform.system() == 'Linux':
+        # Linux HOST
+        port = int(os.environ.get("PORT", 5000))
+        app.run(host="0.0.0.0", port=port, threaded=True)
+    else:
+        # Windows HOST
+        app.run(port=5000, debug=True, host='127.0.0.1')
+    

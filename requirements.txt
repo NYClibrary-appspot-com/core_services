@@ -1,0 +1,21 @@
+  
+#  pip install -r requirements.txt
+
+#pip3 install --user flask==1.1.1
+flask==1.1.1
+
+
+#pip3 install --user 
+# PyJWT==1.7.1
+
+#pip3 install --user pymongo==3.9.0
+#pymongo==3.9.0
+
+#pip3 install --user dnspython==1.16.0
+# dnspython==1.16.0
+
+#pip3 install --user google-cloud-storage==1.20.0
+# google-cloud-storage==1.20.0
+
+# awscli==1.16.253
+# gcloud==0.18.3

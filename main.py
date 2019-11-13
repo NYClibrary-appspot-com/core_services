@@ -1,8 +1,10 @@
 import os
 import platform
 from flask import Flask
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Root
 @app.route("/", methods=['GET'])
@@ -18,4 +20,3 @@ if __name__ == "__main__":
     else:
         # Windows HOST
         app.run(port=5000, debug=True, host='127.0.0.1')
-    

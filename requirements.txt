@@ -15,7 +15,7 @@ flask==1.1.1
 # dnspython==1.16.0
 
 #pip3 install --user google-cloud-storage==1.20.0
-# google-cloud-storage==1.20.0
+google-cloud-storage==1.20.0
 
 # awscli==1.16.253
 # gcloud==0.18.3

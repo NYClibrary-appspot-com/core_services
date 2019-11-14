@@ -1,15 +1,13 @@
 import os
 import json
 import platform
-from flask import Flask, request
 from flask_cors import CORS
+from flask import Flask, request
 from google.cloud import storage
 
 
 app = Flask(__name__)
 CORS(app)
-
-
 rawPath = "serviceAccount.json"
 client = storage.Client.from_service_account_json(rawPath)
 bucket_name = 'librarybucket1'

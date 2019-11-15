@@ -4,7 +4,7 @@ import platform
 from flask_cors import CORS
 from flask import Flask, request
 from google.cloud import storage
-
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app)
@@ -27,16 +27,15 @@ def list_of_books():
     :param: None
     :return: list of all available books
     """
-    book_list = client.list_blobs(bucket_name)
-    list = []
     try:
+        book_list = client.list_blobs(bucket_name)
+        list = []
         for value in book_list:
             book = value.name
             list.append(book)
-            return json.dumps(list)
+        return json.dumps(list)
     except Exception as e:
-        print(e)
-        return json.dumps({'error': "No value found"})
+        return json.dumps({"error": "somethings went wrong"})
 
 
 @app.route("/search", methods=['GET'])
@@ -57,7 +56,7 @@ def search_a_book(book_name):
         return json.dumps({'success': True, 'book_name': '{}'.format(blob.name)})
 
 
-@app.route('/add', methods=['PUT'])
+@app.route('/add', methods=['POST'])
 def add_books():
     """
     http://127.0.0.1/5000/add
@@ -65,18 +64,21 @@ def add_books():
     param: book_name
     :return: 'success' or 'error'
     """
-    files = request.files['file']
-    file = files.__dict__['filename']
-    upload_book(file)
-    status = search_a_book(file)
-    return status
-
-
-def upload_book(file_name):
-    """Downloads a blob from the bucket."""
+    file = request.files['fi']
+    file_name = secure_filename(file.filename)
+    target = os.path.join('', file_name)
+    file.save(target)
+    print(file_name)
     blob = bucket.blob(file_name)
     with open(file_name, 'rb') as my_file:
         blob.upload_from_file(my_file)
+
+    status = search_a_book(file_name)
+    if 'success' in status:
+        return json.dumps({"success": "File uploaded successfully!"})
+    else:
+        return json.dumps({"error": "File was not uploaded"})
+
 
 
 if __name__ == "__main__":
@@ -87,3 +89,4 @@ if __name__ == "__main__":
     else:
         # Windows HOST
         app.run(port=5000, debug=True, host='127.0.0.1')
+

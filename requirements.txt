@@ -6,8 +6,6 @@ flask==1.1.1
 
 chardet==3.0.4
 
-pathlib
-
 #pip3 install --user google-cloud-storage==1.20.0
 google-cloud-storage==1.20.0
 

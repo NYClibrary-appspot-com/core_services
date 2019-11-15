@@ -1,6 +1,5 @@
 import os
 import json
-import pathlib
 import platform
 from flask_cors import CORS
 from flask import Flask, request

@@ -68,7 +68,6 @@ def add_books():
     file_name = secure_filename(file.filename)
     target = os.path.join('', file_name)
     file.save(target)
-    print(file_name)
     blob = bucket.blob(file_name)
     with open(file_name, 'rb') as my_file:
         blob.upload_from_file(my_file)

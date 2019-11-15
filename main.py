@@ -59,7 +59,7 @@ def search_a_book(book_name):
         return json.dumps({'success': True, 'book_name': '{}'.format(blob.name)})
 
 
-@app.route('/add', methods=['PUT'])
+@app.route('/add', methods=['POST'])
 def add_books():
     """
     http://127.0.0.1/5000/add
@@ -67,11 +67,10 @@ def add_books():
     param: book_name
     :return: 'success' or 'error'
     """
-    files = request.files['file']
-    file = files.__dict__['filename']
-    upload_book(file)
-    status = search_a_book(file)
-    return status
+    file = request.files['pic']
+    print(type(file))
+    print(file)
+    return json.dumps({"success": True})
 
 
 def upload_book(file_name):

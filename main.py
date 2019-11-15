@@ -18,7 +18,7 @@ book_list = client.list_blobs(bucket_name)
 # Root
 @app.route("/", methods=['GET'])
 def helloWorld():
-    return json.dumps({"Sucess": "Welcome to our library!"})
+    return json.dumps({"success": "Welcome to our library!"})
 
 
 @app.route("/book_list", methods=['GET'])

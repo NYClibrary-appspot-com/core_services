@@ -80,13 +80,17 @@ def add_books():
 def download_a_book():
     """
     Downloads a blob from the bucket.
-    http://127.0.0.2:5000/download_book?book_name=FALL2019.PNG
+    http://127.0.0.1:5000/download_book?book_name=FALL2019.PNG
     """
     book_name = request.args.get('book_name')
-    blob = bucket.blob(book_name)
-    downloads = os.path.join(os.path.join(os.path.expanduser('~')), 'Downloads')
-    blob.download_to_filename(downloads+"\\"+book_name)
-    return json.dumps({'book': book_name, "status": "please check the download folder"})
+    record = search_a_book(book_name)
+    if 'success'in record:
+        blob = bucket.blob(book_name)
+        downloads = os.path.join(os.path.join(os.path.expanduser('~')), 'Downloads')
+        blob.download_to_filename(downloads+"\\"+book_name)
+        return json.dumps({'book': book_name, "status": "please check the download folder"})
+    else:
+        return json.dumps(record)
 
 
 
@@ -97,4 +101,4 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=port, threaded=True)
     else:
         # Windows HOST
-        app.run(port=5000, debug=True, host='127.0.0.2')
+        app.run(port=5000, debug=True, host='127.0.0.1')

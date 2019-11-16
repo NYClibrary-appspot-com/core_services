@@ -76,6 +76,20 @@ def add_books():
 
 
 
+@app.route("/download_book", methods=['GET'])
+def download_a_book():
+    """
+    Downloads a blob from the bucket.
+    http://127.0.0.2:5000/download_book?book_name=FALL2019.PNG
+    """
+    book_name = request.args.get('book_name')
+    blob = bucket.blob(book_name)
+    downloads = os.path.join(os.path.join(os.path.expanduser('~')), 'Downloads')
+    blob.download_to_filename(downloads+"\\"+book_name)
+    return json.dumps({'book': book_name, "status": "please check the download folder"})
+
+
+
 if __name__ == "__main__":
     if platform.system() == 'Linux':
         # Linux HOST
@@ -83,4 +97,4 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=port, threaded=True)
     else:
         # Windows HOST
-        app.run(port=5000, debug=True, host='127.0.0.1')
+        app.run(port=5000, debug=True, host='127.0.0.2')

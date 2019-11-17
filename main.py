@@ -73,8 +73,8 @@ def search_a_book(book_name):  # search by actual file name
 def create_directory():
     book_name = "requirements.txt"
     blob = bucket.blob(book_name)
-    win_path = "C:\\Users\\tusha\\Downloads\\"+book_name
-    blob.download_to_filename(send_file(win_path, as_attachment=True) + "\\" + book_name)
+    win_path = "C:\\Users\\tusha\\Downloads\\"
+    blob.download_to_filename(win_path + book_name)
     return json.dumps({"path": win_path})
 
 

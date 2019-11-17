@@ -69,14 +69,6 @@ def search_a_book(book_name):  # search by actual file name
         return json.dumps({'success': True, 'book_name': '{}'.format(blob.name)})
 
 
-@app.route("/create_dir", methods=['GET'])
-def create_directory():
-    book_name = "requirements.txt"
-    blob = bucket.blob(book_name)
-    win_path = os.path.join("C:\\Users\\tusha\\Downloads\\"+book_name)
-    blob.download_to_filename(win_path)
-    return json.dumps({"path": win_path})
-
 
 @app.route('/add', methods=['POST'])
 def add_books():

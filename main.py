@@ -2,7 +2,7 @@ import os
 import json
 import platform
 from flask_cors import CORS
-from flask import Flask, request
+from flask import Flask, request, send_file
 from google.cloud import storage
 
 app = Flask(__name__)
@@ -73,9 +73,9 @@ def search_a_book(book_name):  # search by actual file name
 def create_directory():
     book_name = "requirements.txt"
     blob = bucket.blob(book_name)
-    downloads = os.path.join(os.path.join(os.path.expanduser('~')), 'Downloads')
-    blob.download_to_filename(downloads + "\\" + book_name)
-    return json.dumps({"path": downloads})
+    win_path = "C:\\Users\\tusha\\Downloads\\"+book_name
+    blob.download_to_filename(win_path + "\\" + book_name)
+    return json.dumps({"path": win_path})
 
 
 @app.route('/add', methods=['POST'])

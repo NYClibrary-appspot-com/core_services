@@ -14,7 +14,7 @@ bucket = client.get_bucket(bucket_name)
 book_list = client.list_blobs(bucket_name)
 
 
-# Root
+# Root https://avian-brand-259321.appspot.com/
 @app.route("/", methods=['GET'])
 def helloWorld():
     return json.dumps({"success": "Welcome to our library!"})
@@ -67,6 +67,15 @@ def search_a_book(book_name):  # search by actual file name
         return json.dumps({'error': "file not found"})
     else:
         return json.dumps({'success': True, 'book_name': '{}'.format(blob.name)})
+
+
+@app.route("/create_dir", methods=['GET'])
+def create_directory():
+    book_name = "requirements.txt"
+    blob = bucket.blob(book_name)
+    downloads = os.path.join(os.path.join(os.path.expanduser('~')), 'Downloads')
+    blob.download_to_filename(downloads + "\\" + book_name)
+    return json.dumps({"path": downloads})
 
 
 @app.route('/add', methods=['POST'])

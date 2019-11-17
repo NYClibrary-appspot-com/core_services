@@ -1,0 +1,9 @@
+*.pc
+*.pyc
+*.pyo
+*.pyc
+__pycache__
+.vscode
+.idea
+.iml
+serviceAccount.json

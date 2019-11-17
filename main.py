@@ -2,7 +2,7 @@ import os
 import json
 import platform
 from flask_cors import CORS
-from flask import Flask, request, send_file
+from flask import Flask, request
 from google.cloud import storage
 
 app = Flask(__name__)

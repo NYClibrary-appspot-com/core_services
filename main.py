@@ -1,9 +1,11 @@
 import os
 import json
 import platform
+from io import BytesIO
 from flask_cors import CORS
-from flask import Flask, request
 from google.cloud import storage
+from flask import Flask, request, send_file
+
 
 app = Flask(__name__)
 CORS(app)
@@ -103,9 +105,11 @@ def download_a_book():
         record = search_a_book(book_name)
         if 'success' in record:
             blob = bucket.blob(book_name)
-            downloads = os.path.join(os.path.join(os.path.expanduser('~')), 'Downloads')
-            blob.download_to_filename(downloads + "\\" + book_name)
-            return json.dumps({'book': book_name, "status": "please check the download folder"})
+            buffer = BytesIO()
+            buffer.write(blob.download_as_string())
+            return send_file(
+                buffer, as_attachment=True,
+                attachment_filename=book_name)
         else:
             return json.dumps(record)
     except Exception as e:

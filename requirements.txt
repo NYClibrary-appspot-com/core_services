@@ -8,6 +8,6 @@ flask==1.1.1
 google-cloud-storage==1.20.0
 
 #pip3 install --user
-flask-cors == 3.0.8
+flask-cors==3.0.8
 
-# gcloud==0.18.3
+google-resumable-media==0.5.0

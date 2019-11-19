@@ -4,7 +4,7 @@ import platform
 from io import BytesIO
 from flask_cors import CORS
 from google.cloud import storage
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, Response
 
 
 app = Flask(__name__)
@@ -16,7 +16,7 @@ bucket = client.get_bucket(bucket_name)
 book_list = client.list_blobs(bucket_name)
 
 
-# Root https://avian-brand-259321.appspot.com/
+# Root https://pyback.appspot.com/
 @app.route("/", methods=['GET'])
 def helloWorld():
     return json.dumps({"success": "Welcome to our library!"})
@@ -106,6 +106,7 @@ def download_a_book():
             blob = bucket.blob(book_name)
             buffer = BytesIO()
             buffer.write(blob.download_as_string())
+            # response = Response.headers.add_header("co")
             return send_file(
                 buffer, as_attachment=True,
                 attachment_filename=book_name)

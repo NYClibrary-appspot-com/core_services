@@ -12,3 +12,6 @@ google-cloud-storage==1.20.0
 # google-cloud-bigquery
 
 # google-resumable-media==0.3.1
+
+
+# redis-cli 5.0.3 // for cache

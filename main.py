@@ -1,10 +1,10 @@
 import os
+import sys
 import json
 import platform
-from io import BytesIO
 from flask_cors import CORS
 from google.cloud import storage
-from flask import Flask, request, send_file, Response
+from flask import Flask, request, Response
 
 
 app = Flask(__name__)
@@ -19,7 +19,10 @@ book_list = client.list_blobs(bucket_name)
 # Root https://pyback.appspot.com/
 @app.route("/", methods=['GET'])
 def helloWorld():
-    return json.dumps({"success": "Welcome to our library!"})
+    """
+    http://127.0.0.1:5000
+    """
+    return json.dumps({'success': 'welcome to nyc library server'})
 
 
 @app.route("/book_list", methods=['GET'])
@@ -65,7 +68,6 @@ def search_a_book(book_name):  # search by actual file name
                 list.append(book)
             if len(list) > 0:
                 return json.dumps(list)
-
         return json.dumps({'error': "file not found"})
     else:
         return json.dumps({'success': True, 'book_name': '{}'.format(blob.name)})
@@ -104,14 +106,12 @@ def download_a_book():
         record = search_a_book(book_name)
         if 'success' in record:
             blob = bucket.blob(book_name)
-            buffer = BytesIO()
-            buffer.write(blob.download_as_string())
-            # response = Response.headers.add_header("co")
-            return send_file(
-                buffer, as_attachment=True,
-                attachment_filename=book_name)
+            size = sys.getsizeof(blob.download_as_string())
+            response = Response(blob.download_as_string())
+            response.headers.add('Content-Range'.format('bytes'), size)
+            return response
         else:
-            return json.dumps(record)
+            return json.dumps({'error': 'file not found'})
     except Exception as e:
         json.dumps({"error": "exception found"})
 

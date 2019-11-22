@@ -19,6 +19,9 @@ book_list = client.list_blobs(bucket_name)
 # Root https://pyback.appspot.com/
 @app.route("/", methods=['GET'])
 def helloWorld():
+    for bucket in client.list_buckets():
+        print (bucket)
+    # bucket_list = ["librarybucket1", "replica1", "replica2"]
     """
     http://127.0.0.1:5000
     """

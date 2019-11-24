@@ -13,7 +13,6 @@ rawPath = "serviceAccount.json"
 client = storage.Client.from_service_account_json(rawPath)
 bucket_name = 'librarybucket1'
 bucket = client.get_bucket(bucket_name)
-book_list = client.list_blobs(bucket_name)
 
 
 # Root https://pyback.appspot.com/

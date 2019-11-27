@@ -1,10 +1,12 @@
 import os
 import sys
 import json
+import logging
 import platform
 from flask_cors import CORS
 from google.cloud import storage
 from flask import Flask, request, Response
+
 
 
 app = Flask(__name__)

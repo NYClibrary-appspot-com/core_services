@@ -1,17 +1,4 @@
-  
 # pip install -r requirements.txt
-
-#pip3 install --user flask==1.1.1
-flask==1.1.1
-flask-cors==3.0.8
-
-# google-cloud-bigquery 1.21.0 has requirement google-resumable-media!=0.4.0,<0.5.0dev,>=0.3.1, but you'll have google-resumable-media 0.5.0 which is incompatible.
-# google-cloud-bigquery 1.21.0 has requirement google-resumable-media!=0.4.0,<0.5.0dev,>=0.3.1, but you'll have google-resumable-media 0.5.0 which is incompatible.
-#sudo pip3 install google-cloud-storage==1.20.0
-google-cloud-storage==1.20.0
-# google-cloud-bigquery
-
-# google-resumable-media==0.3.1
-
-
-# redis-cli 5.0.3 // for cache
+flask
+flask-cors
+google-cloud-storage

@@ -1,5 +1,5 @@
 # from google.cloud import storage
-from pymongo import MongoClient
+# from pymongo import MongoClient
 
 # rawPath = "serviceAccount.json"
 # client = storage.Client.from_service_account_json(rawPath)
@@ -13,9 +13,9 @@ from pymongo import MongoClient
 
 
 
-mongo_client = MongoClient(
-    "mongodb+srv://tweet:nKzHTG4VmIAHlKpz@twiter-pyyhe.mongodb.net/test?retryWrites=true&w=majority")
-db = mongo_client.TWITER
-db_tracker = db.db_checker
+# mongo_client = MongoClient(
+#     "mongodb+srv://tweet:nKzHTG4VmIAHlKpz@twiter-pyyhe.mongodb.net/test?retryWrites=true&w=majority")
+# db = mongo_client.TWITER
+# db_tracker = db.db_checker
 
 # print(db_tracker.find_one({"dbname":"replica1"}))

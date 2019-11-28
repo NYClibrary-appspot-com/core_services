@@ -4,7 +4,7 @@ import json
 import platform
 from flask_cors import CORS
 from google.cloud import storage
-from database.client import db_tracker
+# from database.client import db_tracker
 from flask import Flask, request, Response
 
 
@@ -18,6 +18,7 @@ book_list = client.list_blobs(primary)
 
 
 
+
 # Root https://pyback.appspot.com/
 @app.route("/", methods=['GET'])
 def helloWorld():
@@ -27,7 +28,6 @@ def helloWorld():
     """
     http://127.0.0.1:5000
     """
-    # print(db_tracker.find_one({"dbname":"replica1"}))
     return json.dumps({'success': 'welcome to nyc library server'})
 
 

@@ -60,7 +60,7 @@
 2. confirm the build images
 - docker images
 3. run the image ("PORT-FORWORDING")
-- docker run -it d -p 5000:5000 snowlibrary
+- docker run -it -d -p 5000:5000 snowlibrary
 4. check if the image is running or not
 - docker ps
 5. stop the image (two steps):
@@ -68,5 +68,10 @@
     - docker stop <imges-id>
 
 # Deploy in google Kubernetes using google-console
-- docker tag snowlibrary gcr.io/pyback/snowlibrary
-- gcloud docker push gcr.io/pyback/snowlibrary
+- docker build -t gcr.io/pyback/snowlibrary:v1 .
+- docker push gcr.io/pyback/snowlibrary:v1
+- kubectl get pods
+- kubectl expose deployment pyback --type=LoadBalancer --port 80 --target-port 5000
+- kubectl get service
+- kubectl scale deployment pyback --replicas=3
+- kubectl get deployment pyback

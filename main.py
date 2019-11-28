@@ -1,27 +1,33 @@
 import os
 import sys
 import json
-import logging
 import platform
 from flask_cors import CORS
+from google.cloud import storage
+from database.client import db_tracker
 from flask import Flask, request, Response
-from database.client import (client, bucket, db_tracker)
 
 
 app = Flask(__name__)
 CORS(app)
-primary = "librarybucket1"
-replica_one = "replica1"
-replica_two = "replica2"
+rawPath = "serviceAccount.json"
+client = storage.Client.from_service_account_json(rawPath)
+primary, replica_one, replica_two = 'librarybucket1', 'replica1', 'replica2'
+bucket = client.get_bucket(primary)
+book_list = client.list_blobs(primary)
+
 
 
 # Root https://pyback.appspot.com/
 @app.route("/", methods=['GET'])
 def helloWorld():
+    # for bucket in client.list_buckets():
+    #     print (bucket)
+    # bucket_list = ["librarybucket1", "replica1", "replica2"]
     """
     http://127.0.0.1:5000
     """
-    print(db_tracker.find_one({"dbname":"replica1"}))
+    # print(db_tracker.find_one({"dbname":"replica1"}))
     return json.dumps({'success': 'welcome to nyc library server'})
 
 
@@ -32,18 +38,15 @@ def list_of_books():
     :param: None
     :return: list of all available books
     """
-    # try:
-    book_list = bucket.list_blobs(primary)
-    print(dir(book_list))
-    # list = []
-    for blob in book_list:
-        print(blob.name)
-        # book = value.name
-        # list.append(book)
-    # print(list)
-    return "hi"
-    # except Exception as e:
-    #     return json.dumps({"error": "exception found"})
+    try:
+        book_list = client.list_blobs(primary)
+        list = []
+        for value in book_list:
+            book = value.name
+            list.append(book)
+        return json.dumps(list)
+    except Exception as e:
+        return json.dumps({"error": "exception found"})
 
 
 @app.route("/search", methods=['GET'])
@@ -124,7 +127,7 @@ if __name__ == "__main__":
     if platform.system() == 'Linux':
         # Linux HOST
         port = int(os.environ.get("PORT", 5000))
-        app.run(host="0.0.0.0", debug=True, port=port, threaded=True)
+        app.run(host="0.0.0.0", port=port, threaded=True)
     else:
         # Windows HOST
-        app.run(port=5000, debug=True, host='127.0.0.1', threaded=True)
+        app.run(port=5000, debug=True, host='127.0.0.1')

@@ -10,7 +10,9 @@ from database.client import (client, bucket, db_tracker)
 
 app = Flask(__name__)
 CORS(app)
-
+primary = "librarybucket1"
+replica_one = "replica1"
+replica_two = "replica2"
 
 
 # Root https://pyback.appspot.com/
@@ -20,25 +22,28 @@ def helloWorld():
     http://127.0.0.1:5000
     """
     print(db_tracker.find_one({"dbname":"replica1"}))
-    
     return json.dumps({'success': 'welcome to nyc library server'})
 
 
 @app.route("/book_list", methods=['GET'])
 def list_of_books():
     """
+    http://127.0.0.1:5000/book_list
     :param: None
     :return: list of all available books
     """
-    try:
-        book_list = client.list_blobs(bucket_name)
-        list = []
-        for value in book_list:
-            book = value.name
-            list.append(book)
-        return json.dumps(list)
-    except Exception as e:
-        json.dumps({"error": "exception found"})
+    # try:
+    book_list = bucket.list_blobs(primary)
+    print(dir(book_list))
+    # list = []
+    for blob in book_list:
+        print(blob.name)
+        # book = value.name
+        # list.append(book)
+    # print(list)
+    return "hi"
+    # except Exception as e:
+    #     return json.dumps({"error": "exception found"})
 
 
 @app.route("/search", methods=['GET'])
@@ -119,7 +124,7 @@ if __name__ == "__main__":
     if platform.system() == 'Linux':
         # Linux HOST
         port = int(os.environ.get("PORT", 5000))
-        app.run(host="0.0.0.0", port=port, threaded=True)
+        app.run(host="0.0.0.0", debug=True, port=port, threaded=True)
     else:
         # Windows HOST
-        app.run(port=5000, debug=True, host='127.0.0.1')
+        app.run(port=5000, debug=True, host='127.0.0.1', threaded=True)

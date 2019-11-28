@@ -4,28 +4,23 @@ import json
 import logging
 import platform
 from flask_cors import CORS
-from google.cloud import storage
 from flask import Flask, request, Response
-
+from database.client import (client, bucket, db_tracker)
 
 
 app = Flask(__name__)
 CORS(app)
-rawPath = "serviceAccount.json"
-client = storage.Client.from_service_account_json(rawPath)
-bucket_name = 'librarybucket1'
-bucket = client.get_bucket(bucket_name)
+
 
 
 # Root https://pyback.appspot.com/
 @app.route("/", methods=['GET'])
 def helloWorld():
-    for bucket in client.list_buckets():
-        print (bucket)
-    # bucket_list = ["librarybucket1", "replica1", "replica2"]
     """
     http://127.0.0.1:5000
     """
+    print(db_tracker.find_one({"dbname":"replica1"}))
+    
     return json.dumps({'success': 'welcome to nyc library server'})
 
 

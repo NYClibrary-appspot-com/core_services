@@ -1,5 +1,6 @@
 # from google.cloud import storage
-# from pymongo import MongoClient
+from pymongo import MongoClient
+
 
 # rawPath = "serviceAccount.json"
 # client = storage.Client.from_service_account_json(rawPath)
@@ -13,12 +14,13 @@
 
 
 
-# mongo_client = MongoClient(
-#     "mongodb+srv://tweet:nKzHTG4VmIAHlKpz@twiter-pyyhe.mongodb.net/test?retryWrites=true&w=majority")
-# db = mongo_client.TWITER
-# db_tracker = db.db_checker
+mongo_client = MongoClient(
+    "mongodb+srv://tweet:nKzHTG4VmIAHlKpz@twiter-pyyhe.mongodb.net/test?retryWrites=true&w=majority")
+db = mongo_client["TWITER"]
+db_tracker = db["db_checker"]
+print(db_tracker)
 
-# print(db_tracker.find_one({}))
+print(db_tracker.find_one({"dbname": "replica1"}))
 
 # mongo_messagage = "both google tcp and mongoclient run on same port '27017', need to resolve the conflict"
 # # gcloud compute firewall-rules create allow-mongodb --allow tcp:27017

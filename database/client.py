@@ -19,3 +19,4 @@
 # db_tracker = db.db_checker
 
 # print(db_tracker.find_one({"dbname":"replica1"}))
+mongo_messagage = "both google tcp and mongoclient run on same port '2701', need to resolve the conflict"

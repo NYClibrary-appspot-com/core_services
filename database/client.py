@@ -1,15 +1,19 @@
-# from google.cloud import storage
+from google.cloud import storage
 from pymongo import MongoClient
 
 
-# rawPath = "serviceAccount.json"
-# client = storage.Client.from_service_account_json(rawPath)
-# bucket_name = 'librarybucket1'
-# bucket = client.get_bucket(bucket_name)
+rawPath = "serviceAccount.json"
+client = storage.Client.from_service_account_json(rawPath)
+pimary_bucket, replica_one, replica_two = 'librarybucket1', 'replica1', 'replica2'
 
-# # for bucket in client.list_buckets():
-# #     print (bucket)
-# #     # bucket_list = ["librarybucket1", "replica1", "replica2"]
+# all buckets
+bucket_primary = client.get_bucket(pimary_bucket)
+bucket_one = client.get_bucket(replica_one)
+bucket_two = client.get_bucket(replica_two)
+
+for bucket in client.list_buckets():
+    print (bucket)
+    # bucket_list = ["librarybucket1", "replica1", "replica2"]
 
 
 

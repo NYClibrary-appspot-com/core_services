@@ -1,6 +1,6 @@
 import sys
 import json
-from database.db import client
+from database.db import client, copy_blob
 from flask import Blueprint, request, Response
 
 
@@ -72,6 +72,7 @@ def add_books():
 
         status = search_a_book(file.filename)
         if 'success' in status:
+            copy_blob(file.filename)
             return json.dumps({"success": "File uploaded successfully!"})
         else:
             return json.dumps({"error": "File was not uploaded"})

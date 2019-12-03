@@ -4,11 +4,12 @@ import platform
 from flask import Flask
 from flask_cors import CORS
 from api.gcpClient import gcp_api
-
+from database.db import copy_blob
 
 app = Flask(__name__)
 CORS(app)
 app.register_blueprint(gcp_api, url_prefix='')
+
 
 
 # Root https://pyback.appspot.com/
@@ -17,6 +18,7 @@ def helloWorld():
     """
     http://127.0.0.1:5000
     """
+    copy_blob()
     return json.dumps({'success': 'welcome to nyc library server'})
 
 

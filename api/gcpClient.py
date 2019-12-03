@@ -23,7 +23,7 @@ def list_of_books():
             list.append(book)
         return json.dumps(list)
     except Exception as e:
-        json.dumps({"error": "exception found"})
+        return json.dumps({"error": "exception found"})
 
 
 @gcp_api.route("/search", methods=['GET'])
@@ -77,7 +77,7 @@ def add_books():
         else:
             return json.dumps({"error": "File was not uploaded"})
     except Exception as e:
-        json.dumps({"error": "exception found"})
+        return json.dumps({"error": "exception found"})
 
 
 @gcp_api.route("/download_book", methods=['GET'])
@@ -98,4 +98,4 @@ def download_a_book():
         else:
             return json.dumps({'error': 'file not found'})
     except Exception as e:
-        json.dumps({"error": "exception found"})
+        return json.dumps({"error": "exception found"})

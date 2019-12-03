@@ -4,7 +4,7 @@ from database.db import client, copy_blob
 from flask import Blueprint, request, Response
 
 
-gcp_api = Blueprint('user_api', __name__)
+gcp_api = Blueprint('gcp_api', __name__)
 primary_bucket, replica_one, replica_two = 'librarybucket1', 'replica1', 'replica2'
 bucket = client.get_bucket(primary_bucket)
 

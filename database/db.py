@@ -11,7 +11,7 @@ client = storage.Client.from_service_account_json(rawPath)
 
 
 def copy_blob(new_blob_name):
-    """Copies a blob from one bucket to another with a new name."""
+    """Copies a blob from one bucket to another."""
     source_bucket = client.get_bucket("librarybucket1")
     source_blob = source_bucket.blob(new_blob_name)
 

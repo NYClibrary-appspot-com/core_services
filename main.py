@@ -4,7 +4,7 @@ import platform
 from flask import Flask
 from flask_cors import CORS
 from api.gcpClient import gcp_api
-from database.db import copy_blob
+
 
 app = Flask(__name__)
 CORS(app)
@@ -18,7 +18,6 @@ def helloWorld():
     """
     http://127.0.0.1:5000
     """
-    copy_blob()
     return json.dumps({'success': 'welcome to nyc library server'})
 
 

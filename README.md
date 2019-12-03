@@ -43,7 +43,7 @@
      - activate your virtual environment:
         - linux:
             - . venv/bin/activate
-        window:
+    - window:
           - .\venv\Scripts\activate
 
 # Install "requirements.txt"
@@ -51,6 +51,8 @@
     - or
         - pip3 install --user requirements.txt
 
+# Expose mongodb PORT
+ - # gcloud compute firewall-rules create allow-mongodb --allow tcp:27017
 
 
 

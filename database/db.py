@@ -1,26 +1,15 @@
+import platform
 from google.cloud import storage
 from pymongo import MongoClient
 
-rawPath = "database\\serviceAccount.json"
-primary_bucket, replica_one, replica_two = 'librarybucket1', 'replica1', 'replica2'
+rawPath = None
+if platform.system() == 'Linux':
+    rawPath = "database/serviceAccount.json"
+else:
+    rawPath = "database\\serviceAccount.json"
 client = storage.Client.from_service_account_json(rawPath)
 # for bucket in client.list_buckets():
 #     print (bucket)
-
-
-
-
-def copy_blob(new_blob_name):
-    """Copies a blob from one bucket to another."""
-    source_bucket = client.get_bucket("librarybucket1")
-    source_blob = source_bucket.blob(new_blob_name)
-
-    destination_bucket_one = client.get_bucket("replica1")
-    destination_bucket_two = client.get_bucket("replica2")
-
-    source_bucket.copy_blob(source_blob, destination_bucket_one, new_blob_name)
-    source_bucket.copy_blob(source_blob, destination_bucket_two, new_blob_name)
-
 
 
 

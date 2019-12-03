@@ -2,7 +2,7 @@ from google.cloud import storage
 from pymongo import MongoClient
 
 
-rawPath = "serviceAccount.json"
+rawPath = "database\\serviceAccount.json"
 client = storage.Client.from_service_account_json(rawPath)
 pimary_bucket, replica_one, replica_two = 'librarybucket1', 'replica1', 'replica2'
 

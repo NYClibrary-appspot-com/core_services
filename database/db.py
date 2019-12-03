@@ -1,15 +1,19 @@
 from google.cloud import storage
 from pymongo import MongoClient
 
-rawPath = "database\\serviceAccount.json"
-primary_bucket, replica_one, replica_two = 'librarybucket1', 'replica1', 'replica2'
-client = storage.Client.from_service_account_json(rawPath)
-# for bucket in client.list_buckets():
-#     print (bucket)
+# rawPath = "database\\serviceAccount.json"
+# primary_bucket, replica_one, replica_two = 'librarybucket1', 'replica1', 'replica2'
+# client = storage.Client.from_service_account_json(rawPath)
+# # for bucket in client.list_buckets():
+# #     print (bucket)
 
-
-mongo_client = MongoClient("mongodb+srv://tushar:Krishcu12%40@cluster0-d2vx4.mongodb.net/admin?retryWrites=true&w=majority")
+# library
+# dBcNm3lvf5GJJkBr
+mongo_client = MongoClient("mongodb://library:dBcNm3lvf5GJJkBr@cluster0-shard-00-00-d2vx4.mongodb.net:27017,cluster0-shard-00-01-d2vx4.mongodb.net:27017,cluster0-shard-00-02-d2vx4.mongodb.net:27017/test?ssl=true&replicaSet=cluster0-shard-0&authSource=admin&retryWrites=true&w=majority")
 database = mongo_client.BlockChain
-record = database.users.find({"email":"testuser1"})
+# librarydata = database.librarydata
+record = database.users.find_one({"email":"testuser1"})
 if record is not None:
+    print (dir(record))
     print("MongoDB database is Connected")
+

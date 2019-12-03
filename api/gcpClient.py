@@ -1,6 +1,8 @@
 import sys
+import time
+import logging
 import json
-from database.db import client
+from database.db import client, loggingdb
 from flask import Blueprint, request, Response
 
 
@@ -22,8 +24,13 @@ def list_of_books():
         for value in book_list:
             book = value.name
             list.append(book)
+        loggingdb.insert_one({'ip': request.remote_addr, 
+                'localtime': str(time.asctime( time.localtime(time.time()))),
+                'url': '/book_list'})
+        logging.exception()
         return json.dumps(list)
     except Exception as e:
+        logging.exception()
         return json.dumps({"error": "exception found"})
 
 

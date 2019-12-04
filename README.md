@@ -55,7 +55,6 @@
  - # gcloud compute firewall-rules create allow-mongodb --allow tcp:27017
 
 
-
 # Docker CMD
 1. create an image from cmd
 - docker build -t snowlibrary:latest .

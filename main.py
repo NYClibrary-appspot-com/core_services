@@ -1,10 +1,11 @@
 import os
 import json
+import time
 import platform
+
 from flask import Flask
 from flask_cors import CORS
 from api.gcpClient import gcp_api
-
 
 app = Flask(__name__)
 CORS(app)
@@ -18,6 +19,15 @@ def helloWorld():
     """
     http://127.0.0.1:5000
     """
+    return json.dumps({'success': 'welcome to nyc library server'})
+
+
+@app.route("/2", methods=['GET'])
+def helloWorld2():
+    """
+    http://127.0.0.1:5000
+    """
+    print(time.ctime())
     return json.dumps({'success': 'welcome to nyc library server'})
 
 

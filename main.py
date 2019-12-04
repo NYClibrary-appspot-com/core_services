@@ -5,7 +5,7 @@ import platform
 
 from flask import Flask
 from flask_cors import CORS
-from api.gcpClient import gcp_api
+from api.gcp_api import gcp_api
 
 app = Flask(__name__)
 CORS(app)

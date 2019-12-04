@@ -1,2 +1,9 @@
-Wed, 04 Dec 2019 00:57:42 INFO     127.0.0.1 - - [04/Dec/2019 00:57:42] "GET /search?book_name=t HTTP/1.1" 200 -
-Wed, 04 Dec 2019 00:57:50 INFO      * Detected change in 'C:\\Users\\tusha\\Desktop\\cloud-API-Design\\core_services\\api\\gcpClient.py', reloading
+Wed, 04 Dec 2019 02:28:46 INFO     127.0.0.1 - - [04/Dec/2019 02:28:46] "GET /search?book_name=requireme HTTP/1.1" 200 -
+Wed, 04 Dec 2019 02:28:53 DEBUG    https://storage.googleapis.com:443 "GET /storage/v1/b/replica1/o/t?projection=noAcl HTTP/1.1" 404 227
+Wed, 04 Dec 2019 02:28:53 DEBUG    https://storage.googleapis.com:443 "GET /storage/v1/b/replica1/o?projection=noAcl&prefix=t HTTP/1.1" 200 2444
+Wed, 04 Dec 2019 02:28:53 DEBUG    https://storage.googleapis.com:443 "GET /storage/v1/b/librarybucket1?projection=noAcl HTTP/1.1" 200 587
+Wed, 04 Dec 2019 02:28:53 DEBUG    https://storage.googleapis.com:443 "GET /storage/v1/b/replica1?projection=noAcl HTTP/1.1" 200 535
+Wed, 04 Dec 2019 02:28:53 DEBUG    https://storage.googleapis.com:443 "GET /storage/v1/b/replica2?projection=noAcl HTTP/1.1" 200 535
+Wed, 04 Dec 2019 02:28:53 DEBUG    https://storage.googleapis.com:443 "POST /storage/v1/b/librarybucket1/o/t/copyTo/b/replica1/o/t HTTP/1.1" 404 239
+Wed, 04 Dec 2019 02:28:53 INFO     127.0.0.1 - - [04/Dec/2019 02:28:53] "GET /search?book_name=t HTTP/1.1" 200 -
+Wed, 04 Dec 2019 02:29:37 INFO      * Detected change in 'C:\\Users\\tusha\\Desktop\\cloud-API-Design\\core_services\\api\\gcpClient.py', reloading

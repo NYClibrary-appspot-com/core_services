@@ -1,1 +1,8 @@
-Wed, 04 Dec 2019 02:59:59 INFO     127.0.0.1 - - [04/Dec/2019 02:59:59] "[37mGET /download_book?book_name=FALL2019.PNG HTTP/1.1[0m" 200 -
+Wed, 04 Dec 2019 14:25:04 INFO     127.0.0.1 - - [04/Dec/2019 14:25:04] "POST /add HTTP/1.1" 200 -
+Wed, 04 Dec 2019 14:25:25 DEBUG    https://storage.googleapis.com:443 "POST /upload/storage/v1/b/librarybucket2/o?uploadType=resumable HTTP/1.1" 200 0
+Wed, 04 Dec 2019 14:25:26 DEBUG    https://storage.googleapis.com:443 "PUT /upload/storage/v1/b/librarybucket2/o?uploadType=resumable&upload_id=AEnB2UptlGiFlo5TkmiJR_m_yxaswPVnXihiLmUcXv0xzNjTBxfeO0dBlnS-G9Bme9IihK8EmblzJeMUiHzeZobeFx3kuhSptg HTTP/1.1" 200 732
+Wed, 04 Dec 2019 14:25:26 DEBUG    https://storage.googleapis.com:443 "GET /storage/v1/b/librarybucket2/o/README.md?projection=noAcl HTTP/1.1" 200 749
+Wed, 04 Dec 2019 14:25:27 DEBUG    https://storage.googleapis.com:443 "POST /storage/v1/b/librarybucket2/o/README.md/copyTo/b/replica11/o/README.md HTTP/1.1" 200 825
+Wed, 04 Dec 2019 14:25:27 DEBUG    https://storage.googleapis.com:443 "POST /storage/v1/b/librarybucket2/o/README.md/copyTo/b/replica22/o/README.md HTTP/1.1" 200 825
+Wed, 04 Dec 2019 14:25:27 INFO     127.0.0.1 - - [04/Dec/2019 14:25:27] "POST /add HTTP/1.1" 200 -
+Wed, 04 Dec 2019 14:25:47 INFO      * Detected change in 'C:\\Users\\tusha\\Desktop\\cloud-API-Design\\core_services\\api\\gcp_api.py', reloading

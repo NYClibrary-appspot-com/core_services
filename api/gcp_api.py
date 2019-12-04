@@ -1,15 +1,13 @@
 import sys
 import json
 import logging
-from services.db import client, loggingdb
+
 from flask import Blueprint, request, Response
+from services.db import loggingdb, primary_bucket, replica_one, replica_two
 from services.fun_provider import cached_book_list, search_a_book, copy_blob
 
 
 gcp_api = Blueprint('gcp_api', __name__)
-primary_bucket = client.get_bucket('librarybucket1')
-replica_one = client.get_bucket('replica1')
-replica_two = client.get_bucket('replica2')
 
 
 @gcp_api.route("/book_list", methods=['GET'])

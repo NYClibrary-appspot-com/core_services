@@ -1,13 +1,11 @@
 import json
 from services.db import client
 from cachetools import cached, TTLCache
+from services.db import replica_one, replica_two, primary_bucket
 
 
 # cached for 20 seconds
 cache = TTLCache(maxsize=10000, ttl=20)
-primary_bucket = client.get_bucket('librarybucket1')
-replica_one = client.get_bucket('replica1')
-replica_two = client.get_bucket('replica2')
 
 
 @cached(cache)
@@ -20,17 +18,11 @@ def cached_book_list():
     return list
 
 
-
 def copy_blob(new_blob_name):
     """Copies a blob from one bucket to another."""
-    source_bucket = client.get_bucket("librarybucket1")
-    source_blob = source_bucket.blob(new_blob_name)
-
-    destination_replica_one = client.get_bucket("replica1")
-    destination_replica_two = client.get_bucket("replica2")
-
-    source_bucket.copy_blob(source_blob, destination_replica_one, new_blob_name)
-    source_bucket.copy_blob(source_blob, destination_replica_two, new_blob_name)
+    source_blob = primary_bucket.blob(new_blob_name)
+    primary_bucket.copy_blob(source_blob, replica_one, new_blob_name)
+    primary_bucket.copy_blob(source_blob, replica_two, new_blob_name)
 
 
 # view without downloading the file

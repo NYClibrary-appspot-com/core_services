@@ -76,3 +76,5 @@
 - kubectl get service
 - kubectl scale deployment pyback --replicas=3
 - kubectl get deployment pyback
+# update version
+- kubectl set image pyback=gcr.io/pyback/snowlibrary:v2

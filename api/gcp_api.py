@@ -54,7 +54,6 @@ def search():
         return json.dumps({"error": "exception found , code:404"})
 
 
-
 @gcp_api.route('/add', methods=['POST'])
 def add_books():
     """
@@ -95,7 +94,7 @@ def download_a_book():
     """
     try:
         book_name = request.args.get('book_name')
-        record = search_a_book(book_name)
+        record = search_a_book(replica_one, book_name)
         if 'success' in record:
             blob = replica_one.blob(book_name)
             size = sys.getsizeof(blob.download_as_string())

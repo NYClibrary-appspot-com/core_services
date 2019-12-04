@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6be3923a-919d-49aa-a478-d7cf52c4d7a0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/gcp_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/gcp_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myapp.log" beforeDir="false" afterPath="$PROJECT_DIR$/myapp.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/fun_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/fun_provider.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/services/serviceAccount.json" beforeDir="false" afterPath="$PROJECT_DIR$/services/serviceAccount.json" afterDir="false" />
-    </list>
+    <list default="true" id="6be3923a-919d-49aa-a478-d7cf52c4d7a0" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

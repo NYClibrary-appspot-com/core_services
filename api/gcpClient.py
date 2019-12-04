@@ -54,7 +54,7 @@ def search():
             line = log.readline()
             if line is not None:
                 loggingdb.insert_one({'log': str(line)})
-        return json.dumps({"error": "exception found"})
+        return json.dumps({"error": "exception found , code:404"})
 
 
 # view without downloading the file
@@ -88,8 +88,8 @@ def add_books():
         blob = primary_bucket.blob(file.filename)
         blob.upload_from_file(file)
 
-        status = search_a_book(file.filename)
-        if 'success' in status:
+        status = primary_bucket.get_blob(file.filename)
+        if status is not None:
             copy_blob(file.filename)
             return json.dumps({"success": "File uploaded successfully!"})
         else:

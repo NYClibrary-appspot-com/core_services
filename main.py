@@ -12,7 +12,6 @@ CORS(app)
 app.register_blueprint(gcp_api, url_prefix='')
 
 
-
 # Root https://pyback.appspot.com/
 @app.route("/", methods=['GET'])
 def helloWorld():

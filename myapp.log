@@ -1,1 +1,2 @@
-Tue, 03 Dec 2019 23:25:01 INFO     127.0.0.1 - - [03/Dec/2019 23:25:01] "GET /book_list HTTP/1.1" 200 -
+Wed, 04 Dec 2019 00:57:42 INFO     127.0.0.1 - - [04/Dec/2019 00:57:42] "GET /search?book_name=t HTTP/1.1" 200 -
+Wed, 04 Dec 2019 00:57:50 INFO      * Detected change in 'C:\\Users\\tusha\\Desktop\\cloud-API-Design\\core_services\\api\\gcpClient.py', reloading

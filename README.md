@@ -69,10 +69,14 @@
     - docker stop <imges-id>
 
 # Deploy in google Kubernetes using google-console
+- export PROJECT_ID=pyback
 - docker build -t gcr.io/pyback/snowlibrary:v1 .
 - docker push gcr.io/pyback/snowlibrary:v1
 # go inside cluster and click connect to get the link
 - gcloud container clusters get-credentials standard-cluster-1 --zone us-central1-a --project pyback
+- gcloud config set project $PROJECT_ID
+- gcloud config set compute/zone [COMPUTE_ENGINE_ZONE]
+- kubectl create deployment pyback --image=gcr.io/pyback/snowlibrary:v1
 - kubectl get pods
 - kubectl expose deployment pyback --type=LoadBalancer --port 80 --target-port 5000
 - kubectl get service

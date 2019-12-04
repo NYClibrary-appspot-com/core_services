@@ -3,7 +3,7 @@ import json
 import logging
 
 from flask import Blueprint, request, Response
-from services.db import loggingdb, primary_bucket, replica_one, replica_two
+from services.db import loggingdb, primary_bucket, replica_one
 from services.fun_provider import cached_book_list, search_a_book, copy_blob
 
 

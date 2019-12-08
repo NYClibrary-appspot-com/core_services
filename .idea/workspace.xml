@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6be3923a-919d-49aa-a478-d7cf52c4d7a0" name="Default Changelist" comment="" />
+    <list default="true" id="6be3923a-919d-49aa-a478-d7cf52c4d7a0" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,12 +32,12 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\tusha\Desktop\cloud-API-Design\core_services\django-logging" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\tusha\Desktop\cloud-API-Design\core_services" />
       <recent name="C:\Users\tusha\Desktop\cloud-API-Design\core_services\services" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\tusha\Desktop\cloud-API-Design\core_services\django-logging" />
     </key>
   </component>
   <component name="RunDashboard">

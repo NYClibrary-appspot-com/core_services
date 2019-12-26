@@ -1,4 +1,6 @@
 import sys
+from builtins import Exception
+
 import json
 import logging
 

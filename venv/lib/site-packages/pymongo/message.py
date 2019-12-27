@@ -26,6 +26,8 @@ import struct
 
 import bson
 from bson import (CodecOptions,
+                  decode,
+                  encode,
                   _dict_to_bson,
                   _make_c_string)
 from bson.codec_options import DEFAULT_CODEC_OPTIONS
@@ -203,7 +205,7 @@ def _gen_find_command(coll, spec, projection, skip, limit, batch_size, options,
             cmd['singleBatch'] = True
     if batch_size:
         cmd['batchSize'] = batch_size
-    if read_concern.level and not (session and session._in_transaction):
+    if read_concern.level and not (session and session.in_transaction):
         cmd['readConcern'] = read_concern.document
     if collation:
         cmd['collation'] = collation
@@ -302,7 +304,7 @@ class _Query(object):
             # Explain does not support readConcern.
             if (not explain and session.options.causal_consistency
                     and session.operation_time is not None
-                    and not session._in_transaction):
+                    and not session.in_transaction):
                 cmd.setdefault(
                     'readConcern', {})[
                     'afterClusterTime'] = session.operation_time
@@ -420,7 +422,7 @@ class _GetMore(object):
             spec = self.as_command(sock_info)[0]
             if sock_info.op_msg_enabled:
                 request_id, msg, size, _ = _op_msg(
-                    0, spec, self.db, ReadPreference.PRIMARY,
+                    0, spec, self.db, None,
                     False, False, self.codec_options,
                     ctx=sock_info.compression_context)
                 return request_id, msg, size
@@ -683,7 +685,8 @@ def _op_msg(flags, command, dbname, read_preference, slave_ok, check_keys,
             opts, ctx=None):
     """Get a OP_MSG message."""
     command['$db'] = dbname
-    if "$readPreference" not in command:
+    # getMore commands do not send $readPreference.
+    if read_preference is not None and "$readPreference" not in command:
         if slave_ok and not read_preference.mode:
             command["$readPreference"] = (
                 ReadPreference.PRIMARY_PREFERRED.document)
@@ -920,12 +923,20 @@ class _BulkWriteContext(object):
     @property
     def max_message_size(self):
         """A proxy for SockInfo.max_message_size."""
+        if self.compress:
+            # Subtract 16 bytes for the message header.
+            return self.sock_info.max_message_size - 16
         return self.sock_info.max_message_size
 
     @property
     def max_write_batch_size(self):
         """A proxy for SockInfo.max_write_batch_size."""
         return self.sock_info.max_write_batch_size
+
+    @property
+    def max_split_size(self):
+        """The maximum size of a BSON command before batch splitting."""
+        return self.max_bson_size
 
     def legacy_bulk_insert(
             self, request_id, msg, max_doc_size, acknowledged, docs, compress):
@@ -1009,10 +1020,11 @@ class _BulkWriteContext(object):
             request_id, self.sock_info.address, self.op_id)
 
 
-# 2MiB
-_MAX_ENC_BSON_SIZE = 2 * (1024 * 1024)
-# 6MB
-_MAX_ENC_MESSAGE_SIZE = 6 * (1000 * 1000)
+# From the Client Side Encryption spec:
+# Because automatic encryption increases the size of commands, the driver
+# MUST split bulk writes at a reduced size limit before undergoing automatic
+# encryption. The write payload MUST be split at 2MiB (2097152).
+_MAX_SPLIT_SIZE_ENC = 2097152
 
 
 class _EncryptedBulkWriteContext(_BulkWriteContext):
@@ -1047,14 +1059,9 @@ class _EncryptedBulkWriteContext(_BulkWriteContext):
         return to_send
 
     @property
-    def max_bson_size(self):
-        """A proxy for SockInfo.max_bson_size."""
-        return min(self.sock_info.max_bson_size, _MAX_ENC_BSON_SIZE)
-
-    @property
-    def max_message_size(self):
-        """A proxy for SockInfo.max_message_size."""
-        return min(self.sock_info.max_message_size, _MAX_ENC_MESSAGE_SIZE)
+    def max_split_size(self):
+        """Reduce the batch splitting size."""
+        return _MAX_SPLIT_SIZE_ENC
 
 
 def _raise_document_too_large(operation, doc_size, max_size):
@@ -1386,6 +1393,7 @@ def _batched_write_command_impl(
     # Max BSON object size + 16k - 2 bytes for ending NUL bytes.
     # Server guarantees there is enough room: SERVER-10643.
     max_cmd_size = max_bson_size + _COMMAND_OVERHEAD
+    max_split_size = ctx.max_split_size
 
     # No options
     buf.write(_ZERO_32)
@@ -1397,7 +1405,7 @@ def _batched_write_command_impl(
 
     # Where to write command document length
     command_start = buf.tell()
-    buf.write(bson.BSON.encode(command))
+    buf.write(encode(command))
 
     # Start of payload
     buf.seek(-1, 2)
@@ -1418,16 +1426,17 @@ def _batched_write_command_impl(
     for doc in docs:
         # Encode the current operation
         key = b(str(idx))
-        value = bson.BSON.encode(doc, check_keys, opts)
+        value = encode(doc, check_keys, opts)
         # Is there enough room to add this document? max_cmd_size accounts for
         # the two trailing null bytes.
         doc_too_large = len(value) > max_cmd_size
-        enough_data = (buf.tell() + len(key) + len(value)) >= max_cmd_size
-        enough_documents = (idx >= max_write_batch_size)
         if doc_too_large:
             write_op = list(_FIELD_MAP.keys())[operation]
             _raise_document_too_large(
                 write_op, len(value), max_bson_size)
+        enough_data = (idx >= 1 and
+                       (buf.tell() + len(key) + len(value)) >= max_split_size)
+        enough_documents = (idx >= max_write_batch_size)
         if enough_data or enough_documents:
             break
         buf.write(_BSONOBJ)

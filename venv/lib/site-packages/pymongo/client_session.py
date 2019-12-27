@@ -95,6 +95,7 @@ Classes
 """
 
 import collections
+import os
 import sys
 import uuid
 
@@ -267,7 +268,7 @@ class _TransactionContext(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.__session._in_transaction:
+        if self.__session.in_transaction:
             if exc_val is None:
                 self.__session.commit_transaction()
             else:
@@ -356,7 +357,7 @@ class ClientSession(object):
     def _end_session(self, lock):
         if self._server_session is not None:
             try:
-                if self._in_transaction:
+                if self.in_transaction:
                     self.abort_transaction()
             finally:
                 self._client._return_server_session(self._server_session, lock)
@@ -505,7 +506,7 @@ class ClientSession(object):
             try:
                 ret = callback(self)
             except Exception as exc:
-                if self._in_transaction:
+                if self.in_transaction:
                     self.abort_transaction()
                 if (isinstance(exc, PyMongoError) and
                         exc.has_error_label("TransientTransactionError") and
@@ -514,8 +515,7 @@ class ClientSession(object):
                     continue
                 raise
 
-            if self._transaction.state in (
-                    _TxnState.NONE, _TxnState.COMMITTED, _TxnState.ABORTED):
+            if not self.in_transaction:
                 # Assume callback intentionally ended the transaction.
                 return ret
 
@@ -551,7 +551,7 @@ class ClientSession(object):
         """
         self._check_ended()
 
-        if self._in_transaction:
+        if self.in_transaction:
             raise InvalidOperation("Transaction already in progress")
 
         read_concern = self._inherit_option("read_concern", read_concern)
@@ -589,7 +589,7 @@ class ClientSession(object):
                 "Cannot call commitTransaction after calling abortTransaction")
         elif state is _TxnState.COMMITTED:
             # We're explicitly retrying the commit, move the state back to
-            # "in progress" so that _in_transaction returns true.
+            # "in progress" so that in_transaction returns true.
             self._transaction.state = _TxnState.IN_PROGRESS
             retry = True
 
@@ -750,7 +750,7 @@ class ClientSession(object):
         """Process a response to a command that was run with this session."""
         self._advance_cluster_time(reply.get('$clusterTime'))
         self._advance_operation_time(reply.get('operationTime'))
-        if self._in_transaction and self._transaction.sharded:
+        if self.in_transaction and self._transaction.sharded:
             recovery_token = reply.get('recoveryToken')
             if recovery_token:
                 self._transaction.recovery_token = recovery_token
@@ -761,8 +761,11 @@ class ClientSession(object):
         return self._server_session is None
 
     @property
-    def _in_transaction(self):
-        """True if this session has an active multi-statement transaction."""
+    def in_transaction(self):
+        """True if this session has an active multi-statement transaction.
+
+        .. versionadded:: 3.10
+        """
         return self._transaction.active()
 
     @property
@@ -783,7 +786,7 @@ class ClientSession(object):
 
     def _txn_read_preference(self):
         """Return read preference of this transaction or None."""
-        if self._in_transaction:
+        if self.in_transaction:
             return self._transaction.opts.read_preference
         return None
 
@@ -793,14 +796,14 @@ class ClientSession(object):
         self._server_session.last_use = monotonic.time()
         command['lsid'] = self._server_session.session_id
 
-        if not self._in_transaction:
+        if not self.in_transaction:
             self._transaction.reset()
 
         if is_retryable:
             command['txnNumber'] = self._server_session.transaction_id
             return
 
-        if self._in_transaction:
+        if self.in_transaction:
             if read_preference != ReadPreference.PRIMARY:
                 raise InvalidOperation(
                     'read preference in a transaction must be primary, not: '
@@ -832,12 +835,13 @@ class ClientSession(object):
 
 
 class _ServerSession(object):
-    def __init__(self):
+    def __init__(self, pool_id):
         # Ensure id is type 4, regardless of CodecOptions.uuid_representation.
         self.session_id = {'id': Binary(uuid.uuid4().bytes, 4)}
         self.last_use = monotonic.time()
         self._transaction_id = 0
         self.dirty = False
+        self.pool_id = pool_id
 
     def mark_dirty(self):
         """Mark this session as dirty.
@@ -867,6 +871,14 @@ class _ServerSessionPool(collections.deque):
 
     This class is not thread-safe, access it while holding the Topology lock.
     """
+    def __init__(self, *args, **kwargs):
+        super(_ServerSessionPool, self).__init__(*args, **kwargs)
+        self.pool_id = 0
+
+    def reset(self):
+        self.pool_id += 1
+        self.clear()
+
     def pop_all(self):
         ids = []
         while self:
@@ -887,7 +899,7 @@ class _ServerSessionPool(collections.deque):
             if not s.timed_out(session_timeout_minutes):
                 return s
 
-        return _ServerSession()
+        return _ServerSession(self.pool_id)
 
     def return_server_session(self, server_session, session_timeout_minutes):
         self._clear_stale(session_timeout_minutes)
@@ -895,7 +907,9 @@ class _ServerSessionPool(collections.deque):
             self.return_server_session_no_lock(server_session)
 
     def return_server_session_no_lock(self, server_session):
-        if not server_session.dirty:
+        # Discard sessions from an old pool to avoid duplicate sessions in the
+        # child process after a fork.
+        if server_session.pool_id == self.pool_id and not server_session.dirty:
             self.appendleft(server_session)
 
     def _clear_stale(self, session_timeout_minutes):

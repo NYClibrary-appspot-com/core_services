@@ -12,13 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Support for explicit client side encryption.
-
-**Support for client side encryption is in beta. Backwards-breaking changes
-may be made before the final release.**
-"""
+"""Support for explicit client-side field level encryption."""
 
 import contextlib
+import os
 import subprocess
 import uuid
 import weakref
@@ -34,7 +31,7 @@ except ImportError:
     _HAVE_PYMONGOCRYPT = False
     MongoCryptCallback = object
 
-from bson import _bson_to_dict, _dict_to_bson, decode, encode
+from bson import _dict_to_bson, decode, encode
 from bson.codec_options import CodecOptions
 from bson.binary import (Binary,
                          STANDARD,
@@ -49,14 +46,13 @@ from pymongo.errors import (ConfigurationError,
                             EncryptionError,
                             InvalidOperation,
                             ServerSelectionTimeoutError)
-from pymongo.message import (_COMMAND_OVERHEAD,
-                             _MAX_ENC_BSON_SIZE,
-                             _raise_document_too_large)
 from pymongo.mongo_client import MongoClient
 from pymongo.pool import _configured_socket, PoolOptions
 from pymongo.read_concern import ReadConcern
 from pymongo.ssl_support import get_ssl_context
+from pymongo.uri_parser import parse_host
 from pymongo.write_concern import WriteConcern
+from pymongo.daemon import _spawn_daemon
 
 
 _HTTPS_PORT = 443
@@ -110,11 +106,12 @@ class _EncryptionIO(MongoCryptCallback):
         """
         endpoint = kms_context.endpoint
         message = kms_context.message
+        host, port = parse_host(endpoint, _HTTPS_PORT)
         ctx = get_ssl_context(None, None, None, None, None, None, True)
         opts = PoolOptions(connect_timeout=_KMS_CONNECT_TIMEOUT,
                            socket_timeout=_KMS_CONNECT_TIMEOUT,
                            ssl_context=ctx)
-        conn = _configured_socket((endpoint, _HTTPS_PORT), opts)
+        conn = _configured_socket((host, port), opts)
         try:
             conn.sendall(message)
             while kms_context.bytes_needed > 0:
@@ -150,7 +147,7 @@ class _EncryptionIO(MongoCryptCallback):
         self._spawned = True
         args = [self.opts._mongocryptd_spawn_path or 'mongocryptd']
         args.extend(self.opts._mongocryptd_spawn_args)
-        subprocess.Popen(args)
+        _spawn_daemon(args)
 
     def mark_command(self, database, cmd):
         """Mark a command for encryption.
@@ -202,13 +199,13 @@ class _EncryptionIO(MongoCryptCallback):
         :Returns:
           The _id of the inserted data key document.
         """
-        # insert does not return the inserted _id when given a RawBSONDocument.
-        doc = _bson_to_dict(data_key, _DATA_KEY_OPTS)
-        if not isinstance(doc.get('_id'), uuid.UUID):
-            raise TypeError(
-                'data_key _id must be a bson.binary.Binary with subtype 4')
-        res = self.key_vault_coll.insert_one(doc)
-        return Binary(res.inserted_id.bytes, subtype=UUID_SUBTYPE)
+        raw_doc = RawBSONDocument(data_key)
+        data_key_id = raw_doc.get('_id')
+        if not isinstance(data_key_id, uuid.UUID):
+            raise TypeError('data_key _id must be a UUID')
+
+        self.key_vault_coll.insert_one(raw_doc)
+        return Binary(data_key_id.bytes, subtype=UUID_SUBTYPE)
 
     def bson_encode(self, doc):
         """Encode a document to BSON.
@@ -272,10 +269,6 @@ class _Encrypter(object):
         # check_keys.
         cluster_time = check_keys and cmd.pop('$clusterTime', None)
         encoded_cmd = _dict_to_bson(cmd, check_keys, codec_options)
-        max_cmd_size = _MAX_ENC_BSON_SIZE + _COMMAND_OVERHEAD
-        if len(encoded_cmd) > max_cmd_size:
-            raise _raise_document_too_large(
-                next(iter(cmd)), len(encoded_cmd), max_cmd_size)
         with _wrap_encryption_errors():
             encrypted_cmd = self._auto_encrypter.encrypt(database, encoded_cmd)
             # TODO: PYTHON-1922 avoid decoding the encrypted_cmd.
@@ -340,11 +333,11 @@ class Algorithm(object):
 
 
 class ClientEncryption(object):
-    """Explicit client side encryption."""
+    """Explicit client-side field level encryption."""
 
     def __init__(self, kms_providers, key_vault_namespace, key_vault_client,
                  codec_options):
-        """Explicit client side encryption.
+        """Explicit client-side field level encryption.
 
         The ClientEncryption class encapsulates explicit operations on a key
         vault collection that cannot be done directly on a MongoClient. Similar
@@ -355,8 +348,7 @@ class ClientEncryption(object):
         creating data keys. It does not provide an API to query keys from the
         key vault collection, as this can be done directly on the MongoClient.
 
-        .. note:: Support for client side encryption is in beta.
-           Backwards-breaking changes may be made before the final release.
+        See :ref:`explicit-client-side-encryption` for an example.
 
         :Parameters:
           - `kms_providers`: Map of KMS provider options. Two KMS providers
@@ -379,15 +371,18 @@ class ClientEncryption(object):
             containing the `key_vault_namespace` collection.
           - `codec_options`: An instance of
             :class:`~bson.codec_options.CodecOptions` to use when encoding a
-            value for encryption and decoding the decrypted BSON value.
+            value for encryption and decoding the decrypted BSON value. This
+            should be the same CodecOptions instance configured on the
+            MongoClient, Database, or Collection used to access application
+            data.
 
         .. versionadded:: 3.9
         """
         if not _HAVE_PYMONGOCRYPT:
             raise ConfigurationError(
-                "client side encryption requires the pymongocrypt library: "
-                "install a compatible version with: "
-                "python -m pip install pymongo['encryption']")
+                "client-side field level encryption requires the pymongocrypt "
+                "library: install a compatible version with: "
+                "python -m pip install 'pymongo[encryption]'")
 
         if not isinstance(codec_options, CodecOptions):
             raise TypeError("codec_options must be an instance of "
@@ -412,15 +407,17 @@ class ClientEncryption(object):
         :Parameters:
           - `kms_provider`: The KMS provider to use. Supported values are
             "aws" and "local".
-          - `master_key`: The `master_key` identifies a KMS-specific key used
-            to encrypt the new data key. If the kmsProvider is "local" the
-            `master_key` is not applicable and may be omitted.
-            If the `kms_provider` is "aws", `master_key` is required and must
-            have the following fields:
+          - `master_key`: Identifies a KMS-specific key used to encrypt the
+            new data key. If the kmsProvider is "local" the `master_key` is
+            not applicable and may be omitted. If the `kms_provider` is "aws"
+            it is required and has the following fields::
 
-              - `region` (string): The AWS region as a string.
-              - `key` (string): The Amazon Resource Name (ARN) to the AWS
-                customer master key (CMK).
+              - `region` (string): Required. The AWS region, e.g. "us-east-1".
+              - `key` (string): Required. The Amazon Resource Name (ARN) to
+                 the AWS customer.
+              - `endpoint` (string): Optional. An alternate host to send KMS
+                requests to. May include port number, e.g.
+                "kms.us-east-1.amazonaws.com:443".
 
           - `key_alt_names` (optional): An optional list of string alternate
             names used to reference a key. If a key is created with alternate
@@ -434,7 +431,9 @@ class ClientEncryption(object):
                                         algorithm=Algorithm.Random)
 
         :Returns:
-          The ``_id`` of the created data key document.
+          The ``_id`` of the created data key document as a
+          :class:`~bson.binary.Binary` with subtype
+          :data:`~bson.binary.UUID_SUBTYPE`.
         """
         self._check_closed()
         with _wrap_encryption_errors():

@@ -481,9 +481,8 @@ class MongoClient(common.BaseObject):
           - `auto_encryption_opts`: A
             :class:`~pymongo.encryption_options.AutoEncryptionOpts` which
             configures this client to automatically encrypt collection commands
-            and automatically decrypt results. **Support for client side
-            encryption is in beta. Backwards-breaking changes may be made
-            before the final release.**
+            and automatically decrypt results. See
+            :ref:`automatic-client-side-encryption` for an example.
 
         .. mongodoc:: connections
 
@@ -1255,7 +1254,7 @@ class MongoClient(common.BaseObject):
                 # Pin this session to the selected server if it's performing a
                 # sharded transaction.
                 if server.description.mongos and (session and
-                                                  session._in_transaction):
+                                                  session.in_transaction):
                     session._pin_mongos(server)
             return server
         except PyMongoError as exc:
@@ -1355,7 +1354,7 @@ class MongoClient(common.BaseObject):
         Re-raises any exception thrown by func().
         """
         retryable = (retryable and self.retry_writes
-                     and session and not session._in_transaction)
+                     and session and not session.in_transaction)
         last_error = None
         retrying = False
 
@@ -1445,7 +1444,7 @@ class MongoClient(common.BaseObject):
         """
         retryable = (retryable and
                      self.retry_reads
-                     and not (session and session._in_transaction))
+                     and not (session and session.in_transaction))
         last_error = None
         retrying = False
 

@@ -156,6 +156,10 @@ class Topology(object):
                     "after forking. See PyMongo's documentation for details: "
                     "http://api.mongodb.org/python/current/faq.html#"
                     "is-pymongo-fork-safe")
+                with self._lock:
+                    # Reset the session pool to avoid duplicate sessions in
+                    # the child process.
+                    self._session_pool.reset()
 
         with self._lock:
             self._ensure_opened()
@@ -425,9 +429,13 @@ class Topology(object):
 
     def update_pool(self):
         # Remove any stale sockets and add new sockets if pool is too small.
+        servers = []
         with self._lock:
             for server in self._servers.values():
-                server._pool.remove_stale_sockets()
+                servers.append((server, server._pool.pool_id))
+
+        for server, pool_id in servers:
+            server._pool.remove_stale_sockets(pool_id)
 
     def close(self):
         """Clear pools and terminate monitors. Topology reopens on demand."""
